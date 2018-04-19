@@ -1,7 +1,7 @@
 (function() {
 
-var heights = 5;
-var playerCount = 5;
+var heights = 3;
+var playerCount = 2;
 var boardArr = [];
 var cellArr = [];
 var playerState;
@@ -21,7 +21,13 @@ var compare = false;
 var finalObj; 
 var computerTurn = false;
 var gamewon = false;
-
+var tempStatus;
+var currentMarker;
+var countScore = 0;
+var oldscore = 0;
+var nextmarker;
+var bestVal = {y:'',x:''};
+var oldBestVal = {y:'',x:''};
 
 var player = {
     name: "player"+playerState+"selected",
@@ -94,7 +100,11 @@ function Board(height,playerCount){
                     
                 }else{
                     if(playerState < playerCount-1){
-                        playerState++;
+                        if(playerState > 0){ 
+                            playerState++;
+                        }else{
+                            playerState = 0;
+                        }
                     }else{
                         playerState = 0;
                     }
@@ -103,14 +113,14 @@ function Board(height,playerCount){
             }else{
                 alert("invalid move");
             }
-            var nextPlayer = playerState+1;
+            
             //var selector = document.getElementById('player');
             //console.log(selector.length);
             
-            if(playerState+1 == playerArr.length-1){;
+            /*if(playerState+1 == playerArr.length-1){;
                 playerState++;
                 move(finalObj.x,finalObj.y,playerArr[playerState]);
-            }
+            }*/
         });
     }
     ini();
@@ -136,20 +146,16 @@ function getXY(ele){
 function move(x,y,player){
 
     if(!gameEnd){
-            
             var valueNode = document.createTextNode(player.marker);
+           // console.log("cell",cellArr);
             cellArr[y][x] = player.marker;
             boardArr[y][x].appendChild(valueNode);
 
             var draw=true;
             // check horizontal
-
-            checkType();
-
             for(var row in cellArr) {
                 for(var j=0; j<heights;j++){
                     if(cellArr[row][j] !== '' && cellArr[row][j+1] !== '' && cellArr[row][j] === cellArr[row][j+1]){
-                        
                         if(j+1 == heights-1){
                             //console.log("player"+player.marker+"is winner");
                             document.getElementById("result").innerHTML = "player"+player.marker+"won the game."
@@ -168,7 +174,6 @@ function move(x,y,player){
             for(var col in cellArr) {
                 for(var j=0; j<heights-1;j++){
                     if(cellArr[j][col] !== '' && cellArr[j+1][col] !== '' && cellArr[j][col] === cellArr[j+1][col]){
-                        
                         if(j+1 == heights-1){
                             //console.log("player"+player.marker+"is winner");
                             document.getElementById("result").innerHTML = "player"+player.marker+"won the game."
@@ -219,179 +224,176 @@ function move(x,y,player){
         }
         
         if(!gameEnd){
-            filledSpace++;
+            console.log(cellArr);
+            filledSpace = 0;
+            for(var key in cellArr){
+                for(var g=0;g<heights;g++){
+                    if(cellArr[key][g] !== ""){
+                        filledSpace++;
+                    }
+                }
+            }
+            
             if(filledSpace == heights*heights){
                 gameEnd = true;
                 document.getElementById("result").innerHTML = "The game is a draw."
             }
         }
-        checkEmptyCellStatus()
-    }
-}
-
-function checkType(){
-
-    // hor
-
-    var horObj = new Object;
-    var horFObj = new Object;
-    for(var row in cellArr) {
-        var cellA = [];
-        for(var j=0; j<heights;j++){
-            if(cellArr[row][j] !== ''){
-                cellA.push(cellArr[row][j]);
-            }
-        }
-        
-        var testObj = printRepeating(cellA, cellA.length);
-        
-        if(testObj.count !== undefined && testObj.count !== null && testObj.count !== ''){
-            if(testObj.count == -1){
-                horFObj = testObj; 
-            }else if(testObj.count == 0){
-                horFObj = testObj;
-            }else if(testObj.count > 0){
-                if(verObj.count !== undefined){
-                    if(testObj.count > horObj.count){
-                        horFObj = testObj;
-                    }else{ 
-                        horFObj = horObj; 
-                    }
-                }else{
-                    horFObj = horObj; 
-                }
-            }
-        }
-        horObj = testObj;
-    }
-
-    // col
-    var verObj = new Object;
-    var verFObj = new Object;
-    for(var row in cellArr) {
-        var cellA = [];
-        for(var j=0; j<heights;j++){
-            if(cellArr[j][row] !== ''){
-                cellA.push(cellArr[j][row]);
-            }
-        }
-        
-        var testObj = printRepeating(cellA, cellA.length);
-        
-        if(testObj.count !== undefined && testObj.count !== null && testObj.count !== ''){
-            
-            if(testObj.count == -1){
-                verFObj = testObj; 
-            }else if(testObj.count == 0){
-                verFObj = testObj;
-            }else if(testObj.count > 0){
-                if(verObj.count !== undefined){
-                    if(testObj.count > verObj.count){
-                        verFObj = testObj;
-                    }else{ 
-                        verFObj = verObj; 
-                    }
-                }else{
-                    verFObj = verObj; 
-                }
-            }
-        }
-        verObj = testObj;
-    }
-    //console.log(horFObj.count, ": ",verFObj.count);
-    if(horFObj.count == verFObj.count){
-        maxValDir = "hor";
-        omaxValueMarker = horFObj.num;
-    }else if(horFObj.count > verFObj.count){
-        maxValDir = "hor";
-        omaxValueMarker = horFObj.num;
-    }else{
-        maxValDir = "ver";
-        omaxValueMarker = verFObj.num;
-    }
-    
-}
-
-function printRepeating(arr,size)
-{
-  var obj = {num:'',count:''};
-  var  i, j, count;
-  count = 0;
-  for(i = 0; i < size; i++){
-    for(j = i+1; j < size; j++){
-      if(arr[i] == arr[j]){
-        obj.num = arr[i];
-        obj.count = count++;
-      }
-    }
-  }
-  return obj;
-}     
- 
-
-
-function checkEmptyCellStatus(){
-    emptyCellArr = [];
-    var Obj;
-    for(var i=0;i<boardArr.length;i++){
-        for(var k=0;k<boardArr.length;k++){
-            if(!boardArr[i][k].hasChildNodes()){
-                obj = getEmptyInfo(i,k);
-                //console.log(obj);
-                emptyCellArr.push(obj);
-            }
-        }
-    }
-    
-    finalObj = getFinalValue(emptyCellArr);
-    //getFinalValue(emptyCellArr);
-
-       console.log("finalObj",finalObj);
-    //console.log(finalObj);
-}
-
-function getFinalValue(arr){
-    var obj; // = arr[0];
-    
-    for(var i=0;i<arr.length;i++){
-        if(i < arr.length-1){
-            obj = compareValue(arr[i],arr[i+1]);
+        tempStatus = playerState;
+        availbleSpace = (heights*heights)-filledSpace;
+        console.log(availbleSpace);
+        if(nextmarker == playerArr[playerArr.length-1].marker){
+            nextmarker = 0; 
         }else{
-            obj = arr[arr.length-1];
+            nextmarker = playerArr[playerState+1].marker;
+        }
+        var marker = playerArr[playerState].marker
+        if(playerState+1 == playerArr.length-1){;
+            playerState++;
+            minMax(cellArr,availbleSpace,nextmarker,marker);
+            move(bestVal.y,bestVal.x,playerArr[playerState]);
+            playerState = 0;
+            
+        }
+        
+    }
+}
+
+
+function minMax(boaArr,depth,cMarker,marker){
+   // console.log(boardArr);
+    if(tempStatus == 0){
+        tempStatus++
+        marker = playerArr[tempStatus].marker;
+        //console.log(marker);
+    }else if(tempStatus == playerArr.length-1){
+        tempStatus = 0;
+        marker = playerArr[tempStatus].marker;
+        //console.log(marker);
+    }
+    var score = 0;
+    var moves = [];
+    
+    var availableMoves = 0;
+    for(var k=0;k<boaArr.length;k++){
+        for(var i=0;i<heights;i++){
+            
+            if(boaArr[k][i] !== ""){
+            }else{
+                    moves = getNewArr(boaArr,k,i,marker);
+                    var tempscore = checkStatus(moves,cMarker,marker);
+                    if(tempscore == 1){
+                        //console.log(moves);
+                        score = score+tempscore;
+                            if(score > oldscore){
+                                bestVal.y = k;
+                                bestVal.x = i;
+                            }
+                    }
+                    
+                    
+                    oldscore = score;
+
+                    if(depth >= 0)
+                        depth--;
+                        minMax(moves,depth,cMarker,marker);
+                    }
+                    
+            
+            }
+        }
+}
+
+
+function checkStatus(arr,cMarker,marker){
+
+    var score;
+    for(var row in arr) {
+        for(var j=0; j<heights;j++){
+            if(arr[row][j] !== '' && arr[row][j+1] !== '' && arr[row][j] === arr[row][j+1]){
+                if(j+1 == heights-1){
+                    
+                    if(arr[row][j] == cMarker){
+                      //  console.log("winner"+arr[row][j]);
+                        score = 1;
+                        //console.log("player"+player.marker+"is winner");
+                    }else{
+                        score = -1;
+                    }
+                    
+                }
+            }else{
+                break;
+            }
+        }
+    }
+    
+    // check vertical
+    for(var col in arr) {
+        for(var j=0; j<heights-1;j++){
+            if(arr[j][col] !== '' && arr[j+1][col] !== '' && arr[j][col] === arr[j+1][col]){
+                
+                if(j+1 == heights-1){
+                    if(arr[j+1][col] == cMarker){
+                        //console.log("winner"+arr[j+1][col]);
+                        //console.log("player"+player.marker+"is winner");
+                        score = 1;
+                    }else{
+                        score = -1;
+                    }
+                }
+            }else{
+                break;
+            }
+        }
+    }
+
+    // check top diagonal
+    for(var k=0;k<heights-1;k++){
+        if(arr[k][k] !== '' && arr[k+1][k+1] !== '' && arr[k][k] === arr[k+1][k+1]){    
+            if(k+1 == heights-1){
+                if(arr[k][k] == cMarker){
+                    //console.log("winner"+arr[k][k]);
+                    score = 1;
+                    //console.log("player"+player.marker+"is winner");
+                }else{
+                    score = -1;
+                }
+            }
+        }else{
             break;
         }
     }
-    return obj;
-}
 
-function compareValue(obj1, obj2){
-    var bestVal;
-    var obj;
-    try{
-        if(obj2.emptyNum > obj1.emptyNum){
-            obj = obj2;
-        }else if(obj2.emptyNum == obj1.emptyNum){
-           // console.log(obj2.maxValDir);
-            if(obj2.maxValDir == "hor"){
-                if(Number(obj2.maxValDirVal) == obj2.y){
-                obj = obj2;
+    // check bottom diagonal
+    var count = 1;
+    for(var k=0;k<heights-1;k++){
+        if(arr[k][heights-(k)-1] !== '' && arr[k+1][heights-(k+1)-1] !== '' && arr[k][heights-(k)-1] === arr[k+1][heights-(k+1)-1]){
+            
+            if(count >= heights-1){
+                if(arr[k][k] == cMarker){
+                   // console.log("winner"+arr[k][heights-(k)-1]);
+                    score = 1;
+                    //console.log("player"+player.marker+"is winner");else
                 }else{
-                    obj = obj1;
-                }
-            }else if(obj2.maxValDir == "ver"){
-                if(Number(obj2.maxValDirVal) == obj2.x){
-                    obj = obj2;
-                }else{
-                    obj = obj1;
+                    score = -1;
                 }
             }
         }
-     }catch(e){
-        //console.log("YO",e,obj1, obj2);
-     }
-    
-    return obj;
+    }
+    return score;
 }
+
+function getNewArr(arr,x,y,marker){
+    var newArray = arr.map(function(arr) {
+        return arr.slice();
+    });
+    if(newArray[x][y] == ""){
+        newArray[x][y] = marker;
+    }
+    return newArray;
+}
+
 
 function maxVal(oldVal, newVal,marker){
     var maxVal = [];
@@ -402,101 +404,6 @@ function maxVal(oldVal, newVal,marker){
         maxVal[0] = oldVal;
     }
     return maxVal;
-}
-
-function getEmptyInfo(y,x){
-    var counter = 0;
-    var emptyLine = 0;
-    emptyCellC = new Object();
-    emptyCellC.y = y;
-    emptyCellC.x = x;
-
-    for(var k=0;k<heights;k++){
-        if(!boardArr[y][k].hasChildNodes()){
-            counter++;
-            emptyCellC.hor = counter;
-        }
-    }
-
-    if(counter == 5){
-        emptyLine++;
-       // emptyLineDir.push("hor");
-    }
-
-    counter = 0;
-    for(var k=0;k<heights;k++){
-        if(!boardArr[k][x].hasChildNodes()){
-            counter++;
-            emptyCellC.ver = counter;
-        }
-    }
-
-    if(counter == 5){
-        emptyLine++;
-       // emptyLineDir.push("ver");
-    }
-
-    counter = 0;
-    var tempy,tempx;
-    tempy = y;
-    tempx = x;
-    var tempdiaArr = [];
-
-    while(tempy > 0 && tempx > 0){
-        tempy--;
-        tempx--;
-    }
-    
-    for(var k=0;k<heights;k++){
-        if(boardArr[tempy+k]){
-            if(boardArr[tempy+k][tempx+k]){
-                if(!boardArr[tempy+k][tempx+k].hasChildNodes()){
-                    counter++;
-                    emptyCellC.dia1 = counter;
-                    
-                }
-            }
-        }
-    }
-    
-    if(counter == 5){
-        emptyLine++;
-        //emptyLineDir.push("dia1");
-    }
-    counter = 0;
-    var tempy,tempx;
-    tempy = y;
-    tempx = x;
-    
-    
-    while(tempx < 4 && tempy > 0){
-        tempy--;
-        tempx++;
-        
-    }
-
-    for(var k=0;k<heights;k++){
-        if(boardArr[tempy+k]){
-            if(boardArr[tempy+k][tempx-k]){
-                if(!boardArr[tempy+k][tempx-k].hasChildNodes()){
-                    counter++;
-                    emptyCellC.dia2 = counter;
-                }
-            }
-        }
-    }
-    if(counter == 5){
-        emptyLine++;
-        //emptyLineDir.push("dia2");    
-    }
-    
-    emptyCellC.maxValDirVal = maxValDirVal;
-    
-    emptyCellC.maxValDir = maxValDir;
-    emptyCellC.maxValMarker = omaxValueMarker;
-    emptyCellC.emptyNum = emptyLine;
-    emptyCellC.emptyLineDir = emptyLineDir;
-    return emptyCellC;
 }
 
 var newBoard = Board(heights,playerCount);
