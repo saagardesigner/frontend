@@ -6,48 +6,20 @@
     var cellArr = [];
     var playerState;
     var playerArr = [];
-    var markers = ["x",];
     var gameStart = false;
     var gameEnd = false;
     var filledSpace = 0;
     var availbleSpace;
-    var emptyCellArr = [];
-    var maxValue = [];
-    var omaxValueMarker;
-    var maxValDir;
-    var maxValDirVal;
-    var emptyLineDir;
-    var compare = false;
-    var finalObj; 
-    var computerTurn = false;
-    var gamewon = false;
     var tempStatus;
-    var currentMarker;
-    var countScore = 0;
     var oldscore = 0;
     var nextmarker;
     var bestVal = {y:'',x:''};
-    var oldBestVal = {y:'',x:''};
     
     var player = {
         name: "player"+playerState+"selected",
         marker: 0,
         status
     };
-    
-    var emptyCell = {
-        x:'',
-        y:'',
-        hor:'',
-        ver:'',
-        dia1:'',
-        dia2:'',
-        emptyNum:'',
-        emptyLineDir: [],
-        maxValMarker:'',
-        maxValDir,
-        maxValDirVal
-    }
         
     function Board(height,playerCount){
         this.heights = height;
@@ -94,10 +66,7 @@
                 if(!boardArr[cellPos.y][cellPos.x].hasChildNodes()){
                     if(!gameStart){
                         playerState = 0;
-                        maxValue[0] = 0;
                         gameStart = true;
-                        emptyLineDir = [];
-                        
                     }else{
                         if(playerState < playerCount-1){
                             playerState++;
@@ -110,13 +79,7 @@
                     alert("invalid move");
                 }
                 
-                //var selector = document.getElementById('player');
-                //console.log(selector.length);
-                
-                /*if(playerState+1 == playerArr.length-1){;
-                    playerState++;
-                    move(finalObj.x,finalObj.y,playerArr[playerState]);
-                }*/
+               
             });
         }
         ini();
@@ -145,12 +108,10 @@
             
             
             var valueNode = document.createTextNode(player.marker);
-            console.log(cellArr);
             cellArr[y][x] = player.marker;
             boardArr[y][x].appendChild(valueNode);
 
             var draw=true;
-            console.log("test");
             // check horizontal
             for(var row in cellArr) {
                 for(var j=0; j<heights;j++){
@@ -228,7 +189,6 @@
                     if(cellArr[key][g] !== ""){
                         filledSpace++;
                         availbleSpace = (heights*heights)-filledSpace;
-                        console.log(availbleSpace);
                     }
                 }
             }
@@ -253,10 +213,8 @@
                 playerState = playerState+1;
                 var moves = [];
                 moves = getBaseArr(cellArr);
-                //console.log("moves", moves);
                 cellArr = moves;
                 minMax(moves,availbleSpace,nextmarker,marker);
-                console.log(bestVal);
                 move(bestVal.x,bestVal.y,playerArr[playerState]);
             }
        // }
@@ -288,7 +246,6 @@
                 if(boaArr[k][i] !== ""){
                 }else{
                         moves = getNewArr(boaArr,k,i,marker);
-                        console.log(moves);
                         var tempscore = checkStatus(moves,cMarker,marker);
                         //
                         if(tempscore == 1){
@@ -324,7 +281,6 @@
                         
                         if(arr[row][j] == cMarker){
                             //console.log("winner"+arr[row][j]);
-                            
                             score = 1;
                             //console.log("player"+player.marker+"is winner");
                         }else{
@@ -362,7 +318,6 @@
             if(arr[k][k] !== '' && arr[k+1][k+1] !== '' && arr[k][k] === arr[k+1][k+1]){    
                 if(k+1 == heights-1){
                     if(arr[k][k] == cMarker){
-                        console.log("winner"+arr[k][k]);
                         score = 1;
                         //console.log("player"+player.marker+"is winner");
                     }else{
@@ -381,7 +336,6 @@
                 
                 if(count >= heights-1){
                     if(arr[k][k] == cMarker){
-                        console.log("winner"+arr[k][heights-(k)-1]);
                         score = 1;
                         //console.log("player"+player.marker+"is winner");else
                     }else{
