@@ -143,12 +143,14 @@
     
         if(!gameEnd){
             
+            
             var valueNode = document.createTextNode(player.marker);
-            console.log("cell",player.marker,x,y);
+            console.log(cellArr);
             cellArr[y][x] = player.marker;
             boardArr[y][x].appendChild(valueNode);
 
             var draw=true;
+            console.log("test");
             // check horizontal
             for(var row in cellArr) {
                 for(var j=0; j<heights;j++){
@@ -219,16 +221,18 @@
             }
                 
         }
-        if(!gameEnd){
-            //console.log(cellArr);
+       // if(!gameEnd){
             filledSpace = 0;
             for(var key in cellArr){
                 for(var g=0;g<heights;g++){
                     if(cellArr[key][g] !== ""){
                         filledSpace++;
+                        availbleSpace = (heights*heights)-filledSpace;
+                        console.log(availbleSpace);
                     }
                 }
             }
+
             
             if(filledSpace == heights*heights){
                 gameEnd = true;
@@ -236,8 +240,8 @@
                 }
             }
             tempStatus = playerState;
-            availbleSpace = (heights*heights)-filledSpace;
-            //console.log(availbleSpace);
+            
+            
             if(nextmarker == playerArr[playerArr.length-1].marker){
                 nextmarker = 0; 
             }else{
@@ -247,16 +251,26 @@
             
             if(playerState+1 == playerArr.length-1){
                 playerState = playerState+1;
-                minMax(cellArr,availbleSpace,nextmarker,marker);
+                var moves = [];
+                moves = getBaseArr(cellArr);
+                //console.log("moves", moves);
+                cellArr = moves;
+                minMax(moves,availbleSpace,nextmarker,marker);
+                console.log(bestVal);
                 move(bestVal.x,bestVal.y,playerArr[playerState]);
             }
-            
-        }
+       // }
+    }
+
+    function getBaseArr(arr){
+        var newArr = arr.map(function(arr) {
+            return arr.slice();
+        });
+        return newArr;
     }
     
     
     function minMax(boaArr,depth,cMarker,marker){
-       // console.log(boardArr);
         if(tempStatus < playerArr.length-1){
             tempStatus++
             marker = playerArr[tempStatus].marker;
@@ -274,17 +288,18 @@
                 if(boaArr[k][i] !== ""){
                 }else{
                         moves = getNewArr(boaArr,k,i,marker);
-                        
+                        console.log(moves);
                         var tempscore = checkStatus(moves,cMarker,marker);
-                       // console.log(tempscore);
-                        //console.log(moves);
+                        //
                         if(tempscore == 1){
-                            
                             score = score+tempscore;
-                            if(score > oldscore){
+                            if(score >= oldscore){
                                 bestVal.y = k;
                                 bestVal.x = i;
                             }
+                        }else{
+                            bestVal.y = k;
+                            bestVal.x = i;
                         }
                         
                         oldscore = score;
@@ -308,7 +323,7 @@
                     if(j+1 == heights-1){
                         
                         if(arr[row][j] == cMarker){
-                            console.log("winner"+arr[row][j]);
+                            //console.log("winner"+arr[row][j]);
                             
                             score = 1;
                             //console.log("player"+player.marker+"is winner");
@@ -330,7 +345,6 @@
                     
                     if(j+1 == heights-1){
                         if(arr[j+1][col] == cMarker){
-                            console.log("winner"+arr[j+1][col]);
                             //console.log("player"+player.marker+"is winner");
                             score = 1;
                         }else{
@@ -388,6 +402,8 @@
         }
         return newArray;
     }
+
+    
     
     
     function maxVal(oldVal, newVal,marker){
